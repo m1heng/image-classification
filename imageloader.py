@@ -36,7 +36,7 @@ class ImageDataSet:
                 for line in f:
                     one_image.append(list(map(charToint,list(line)[:-1])))
                     count += 1
-                    if count == 28:
+                    if count == self.height:
                         self.images.append(one_image)
                         one_image = []
                         number_count += 1

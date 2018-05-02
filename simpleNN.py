@@ -1,114 +1,93 @@
 import numpy as np
 
 class NeuralNetwork():
-	"""docstring for NeuralNetwork"""
-	def __init__(self, number_input, number_hidden, labels):
-		self.input_num = number_input
-		self.neuron_input  = [InputNeuron() for _ in range(number_input)]
-		self.neuron_hidden = [Neuron('hidden layer',self.neuron_input, 0.01, 0.001) for _ in range(number_hidden)]
-		self.neuron_output = [Neuron('output layer',self.neuron_hidden, 0.01, 0.001) for _ in range(len(labels))]
+	def __init__(self, structure, labels):
+		self.input_number = structure[0]
+		self.layers = []
 		self.labels = labels
+		i = self.input_number
+		for s in structure[1:-1]:
+			self.layers.append(HiddenLayer('Hidden Layer', s, i))
+			i = s
+		self.layers.append(HiddenLayer('Output Layer', structure[-1], i))
 
-	def train_one_time(self, data, l):
-		#feed in data forward
-		for inputn, number in zip(self.neuron_input, data):
-			inputn.put(number)
-
-		for hn in self.neuron_hidden:
-			hn.forward()
-
-		for i in range(len(self.labels)):
-			on = self.neuron_output[i]
-			ol = self.labels[i]
-			result = on.forward()
-			target = 1.0 if ol == l else 0.0
-			on.recvfeed(result - target)
-			on.updatedelta()
-			on.updateweights()
-			on.feedback()
-
-		for nh in self.neuron_hidden:
-			nh.updatedelta()
-			nh.updateweights()
-
-	def train(self, data_list, label_list, train_time):
-		print("NeuralNetwork Start training process")
-		for x in range(train_time):
-			for i in range(len(data_list)):
-				print("NeuralNetwork now training the %d data" %i, end='\r')
-				self.train_one_time(np.array(data_list[i]).flatten(), label_list[i])
-
-	def classify_one_time(self, data):
-		for inputn, number in zip(self.neuron_input, data):
-			inputn.put(number)
-
-		for hn in self.neuron_hidden:
-			a = hn.forward()
-		temp = float('-inf')
-		index = 0
+	def forward(self, data):
+		out = data
+		for l in self.layers:
+			out = l.forward(out)
 
 		
-		for i in range(len(self.neuron_output)):
-
-			re = self.neuron_output[i].forward()
-			#print(self.labels[i], re)
-			if temp < re:
-				index = i 
-				temp = re
-
-		return self.labels[index]
-
-	def classify(self, data_list):
-		out = []
-		for data in data_list:
-			out.append(self.classify_one_time(np.array(data).flatten()))
-
 		return out
 
+	def desired_output(self, label):
+		out = np.zeros(len(self.labels)).reshape((-1,1))
+		out[self.labels.index(label),0] = 1.0
+		return out
 
-class InputNeuron(object):
-	def __init__(self):
-		self.output = 0
+	def stochastic_gradient_descent(self, data, label, ratio):
 
-	def put(self, inputdata):
-		self.output = inputdata 
+		x = self.forward(data)
 
+		C_bais = [None for _ in range(len(self.layers))]
+		C_weights = [None for _ in range(len(self.layers))]
 
-class Neuron(object):
-	"""docstring for HiddenNeural"""
-	def __init__(self, name, pre_Nerons, bais, ratio):
-		self.name      = name
-		self.pre_neron = pre_Nerons
-		self.weights   = np.random.random(len(pre_Nerons))
-		self.bais      = bais
-		self.delta     = float("-inf")
-		self.output    = float("-inf")
-		self.upratio   = ratio
+		outputlayer = self.layers[-1]
+		target      = self.desired_output(label)
 
+		delta = (outputlayer.out - target) * Sigmoid_prime(outputlayer.raw)
 
-	def forward(self):
-		inputs = [i.output for i in self.pre_neron]
-		self.output = SomeFunction(np.dot(inputs, self.weights))
-		print(self.name, self.output)
-		self.back_delta = 0
-		return self.output
+		C_bais[-1] = delta
+		C_weights[-1] = np.dot(delta, self.layers[-2].out.transpose())
 
-	def recvfeed(self, number):
-		self.back_delta += number
+		for i in range(2,len(self.layers)):
+			layer = self.layers[-i]
+			delta = np.dot(self.layers[-i+1].weights.transpose(), delta) * Sigmoid_prime(layer.raw)
+			C_bais[-i] = delta
+			C_weights[-i] = np.dot(delta, self.layers[-i-1].out.transpose())
 
-	def feedback(self):
-		for n,w in zip(self.pre_neron, self.weights):
-			n.recvfeed(self.delta * w)
-
-	def updatedelta(self):
-		self.delta = self.back_delta 
-
-	def updateweights(self):
-		for i in range(len(self.weights)):
-			self.weights[i] = self.weights[i] - self.upratio*self.delta*self.pre_neron[i].output
+		delta = np.dot(self.layers[1].weights.transpose(), delta) * Sigmoid_prime(self.layers[0].raw)
+		C_bais[0] = delta
+		C_weights[0] = np.dot(delta, data.transpose())
 
 
-		
+		#update
+		for i in range(len(C_bais)):
+			self.layers[i].weights = self.layers[i].weights - ratio * C_weights[i]
+			self.layers[i].bais    = self.layers[i].bais    - ratio * C_bais[i]
 
-def SomeFunction(a):
-	return a
+	def train(self, data_list, label_list ,time, ratio):
+		for t in range(time):
+			print("Starting Training, Time : %d th" %(t+1))
+			for i in range(len(data_list)):
+				print("Training data number %d " %(i+1), end='\r')
+				self.stochastic_gradient_descent(np.reshape(data_list[i], (-1, 1))/2, label_list[i], ratio)
+
+	def classify_one_time(self, data):
+		a = self.forward(data)
+		return self.labels[np.argmax(a)]
+
+	def classify(self, data_list):
+		o = []
+		for data in data_list:
+			o.append(self.classify_one_time(np.reshape(data, (-1, 1))/2))
+		return o
+
+
+class HiddenLayer():
+	def __init__(self, name , neron_number, input_number):
+		self.name = name
+		self.weights = np.zeros((neron_number, input_number))
+		self.bais = np.random.random(neron_number).reshape((-1,1))
+
+	def forward(self, inputs):
+		self.raw = np.dot(self.weights, inputs) + self.bais
+		self.out = Sigmoid(self.raw)
+		return self.out
+	
+
+
+def Sigmoid(x):
+	return 1.0/(1.0 + np.exp(-x)) 
+
+def Sigmoid_prime(x):
+	return Sigmoid(x)*(1.0 - Sigmoid(x))

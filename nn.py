@@ -5,8 +5,8 @@ class NeuralNetwork():
 	def __init__(self, number_input, number_hidden, labels):
 		self.input_num = number_input
 		self.neuron_input  = [InputNeuron() for _ in range(number_input)]
-		self.neuron_hidden = [Neuron('hidden layer',self.neuron_input, 0.5, 0.5) for _ in range(number_hidden)]
-		self.neuron_output = [Neuron('output layer',self.neuron_hidden, 0.5, 0.2) for _ in range(len(labels))]
+		self.neuron_hidden = [Neuron('hidden layer',self.neuron_input, 0.5, 1) for _ in range(number_hidden)]
+		self.neuron_output = [Neuron('output layer',self.neuron_hidden, 0.5, 0.5) for _ in range(len(labels))]
 		self.labels = labels
 
 	def train_one_time(self, data, l):
@@ -51,7 +51,7 @@ class NeuralNetwork():
 		for i in range(len(self.neuron_output)):
 
 			re = self.neuron_output[i].forward()
-			#print(self.labels[i], re)
+			print(self.labels[i], re)
 			if temp < re:
 				index = i 
 				temp = re
@@ -61,6 +61,7 @@ class NeuralNetwork():
 	def classify(self, data_list):
 		out = []
 		for data in data_list:
+			print(data)
 			out.append(self.classify_one_time(np.array(data).flatten()))
 
 		return out
@@ -71,7 +72,7 @@ class InputNeuron(object):
 		self.output = 0
 
 	def put(self, inputdata):
-		self.output = inputdata /1000
+		self.output = inputdata /2
 
 
 class Neuron(object):
@@ -88,17 +89,18 @@ class Neuron(object):
 
 	def forward(self):
 		inputs = [i.output for i in self.pre_neron]
-		self.output = SomeFunction(np.dot(inputs, self.weights))
+		self.output = Sigmoid(np.dot(inputs, self.weights))
 		#print(self.name, self.output)
-		self.back_delta = 0
+		self.back_delta = 0.0
 		return self.output
 
 	def recvfeed(self, number):
 		self.back_delta += number
 
 	def feedback(self):
-		for n,w in zip(self.pre_neron, self.weights):
-			n.recvfeed(self.delta * w)
+		for i in range(len(self.pre_neron)):
+			self.pre_neron[i].recvfeed(self.delta * self.weights[i])
+
 
 	def updatedelta(self):
 		self.delta = self.back_delta * self.output *(1- self.output)
@@ -110,5 +112,5 @@ class Neuron(object):
 
 		
 
-def SomeFunction(a):
+def Sigmoid(a):
 	return 1.0/(1.0 + np.exp(-a))
