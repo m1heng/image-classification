@@ -4,6 +4,7 @@ class Perceptron():
 	def __init__(self, feature_number, labels):
 		self.name = "Perceptron"
 		self.weights = np.zeros((len(labels), feature_number))
+		self.w0 = np.zeros(len(labels))
 		self.labels = labels
 
 	def train(self,feature_list, label_list , max_train_time):
@@ -18,7 +19,7 @@ class Perceptron():
 				for l in range(len(self.labels)):
 					label_c = self.labels[l]
 					weight = self.weights[l]
-					f = Magic(feature, weight)
+					f = Magic(feature, weight) 
 					if f < 0 and label == label_c:
 						for j in range(len(weight)):
 							weight[j] = weight[j] + feature[j]
@@ -34,7 +35,7 @@ class Perceptron():
 			index = 0
 			for l in range(len(self.labels)):
 				weight = self.weights[l]
-				m = Magic(data, weight)
+				m = Magic(data, weight) 
 				if m >= temp:
 					temp = m
 					index = l
