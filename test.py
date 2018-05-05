@@ -2,6 +2,7 @@ from imageloader import ImageDataSet
 from perceptron_y import Perceptron
 from util import *
 from simpleNN import NeuralNetwork
+from naivebayes import NaiveBayes
 import numpy as np 
 import matplotlib.pyplot as plt
 
@@ -120,20 +121,20 @@ def layface():
     #print(testdata.labels)
     #print(x)
 
-def dataloader_face():
+def dataloader_face(n_train = -1, n_test = -1):
     data = ImageDataSet(70,60, labeldomain=['0', '1'])
-    data.loadImageData("facedata/facedatatrain", -1)
+    data.loadImageData("facedata/facedatatrain", n_train)
     data.loadLabelData("facedata/facedatatrainlabels", data.number)
     testdata = ImageDataSet(70,60)
-    testdata.loadImageData("facedata/facedatatest", -1)
+    testdata.loadImageData("facedata/facedatatest", n_test)
     testdata.loadLabelData("facedata/facedatatestlabels", testdata.number)    
 
-def dataloader_digit():
+def dataloader_digit(n_train = -1, n_test = -1):
     data = ImageDataSet(28,28, labeldomain=['0', '1','2','3','4','5','6','7','8','9'])
-    data.loadImageData("digitdata/trainingimages", -1)
+    data.loadImageData("digitdata/trainingimages", n_train)
     data.loadLabelData("digitdata/traininglabels", data.number)
     testdata = ImageDataSet(28,28)
-    testdata.loadImageData("digitdata/testimages", -1)
+    testdata.loadImageData("digitdata/testimages", n_test)
     testdata.loadLabelData("digitdata/testlabels", testdata.number)
     return data, testdata
 
@@ -210,7 +211,24 @@ def test_nueralnetwork_w(traindata, testdata, times, ratio, file):
 
 
 
+def test_naivebayes(traindata, testdata):
+    #raw pixel feature
+    feature_domians = [[i for i in np.arange(0,1.1,0.5)] for _ in range(traindata.width * traindata.height)]
+    
+    for p in range(10, 101, 10):
+        print("Training with %d"%int(p * traindata.number * 0.01))
+        nb = NaiveBayes(feature_domians, traindata.labeldomain)
+        images, labels = traindata.orderedout(p)
+        nb.train(images, labels)
+        x = nb.classify(testdata.images)
+        a = Accuracy(x, testdata.labels)
+        print(a)
+
+
+
+
 if __name__ == '__main__':
     train , test = dataloader_digit()
     #test_preceptorn(train, test, 10, 1)
-    test_nueralnetwork(train, test, 20, 0.5)
+    #test_nueralnetwork(train, test, 20, 0.5)
+    test_naivebayes(train, test)
