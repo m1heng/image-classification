@@ -1,12 +1,10 @@
 from imageloader import ImageDataSet
-from perceptron_y import Perceptron
+from perceptron import Perceptron
 from util import *
 from simpleNN import NeuralNetwork
 from naivebayes import NaiveBayes
 import numpy as np 
 import matplotlib.pyplot as plt
-
-
 
 def test_imageloader():
 	data = ImageDataSet(28,28)
@@ -166,14 +164,16 @@ def test_preceptorn(traindata, testdata):
     plt.ylabel("accuracy")
     plt.show()
 
-def test_nueralnetwork(traindata, testdata, times, ratio):
+def test_nueralnetwork(traindata, testdata):
+    times = int(input("max trainning time for one data set :"))
+    ratio = float(input("learning ratio: "))
     totalnumber = traindata.number
     #first - try with ordered datas 
     for p in range(10,101,10):
         images, labels = traindata.orderedout(p)
         al = []
         il = []
-        nn = NeuralNetwork((traindata.width*traindata.height, 15,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        nn = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
         for i in range(times):
             print("Train %d time"%i)
             nn.train(images, labels, 1, ratio)
