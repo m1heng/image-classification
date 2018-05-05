@@ -16,7 +16,7 @@ class NaiveBayes(object):
     in general, in learned, feature -> feature_value -> label to get 
     the count
     """
-    def __init__(self, feature_domains, labels):
+    def __init__(self, feature_domains, labels, k):
         self.labels = labels
         self.learned = []
         self.feature_domains = feature_domains
@@ -24,7 +24,7 @@ class NaiveBayes(object):
             self.learned.append(np.zeros((len(one_feature), len(labels))))
         self.label_count = np.zeros(len(labels))
         self.total = 0
-        self.k     = 1
+        self.k     = k
 
     def train(self, features_list, labels):
         #loop to go over input

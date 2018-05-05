@@ -127,7 +127,8 @@ def dataloader_face(n_train = -1, n_test = -1):
     data.loadLabelData("facedata/facedatatrainlabels", data.number)
     testdata = ImageDataSet(70,60)
     testdata.loadImageData("facedata/facedatatest", n_test)
-    testdata.loadLabelData("facedata/facedatatestlabels", testdata.number)    
+    testdata.loadLabelData("facedata/facedatatestlabels", testdata.number)   
+    return data, testdata 
 
 def dataloader_digit(n_train = -1, n_test = -1):
     data = ImageDataSet(28,28, labeldomain=['0', '1','2','3','4','5','6','7','8','9'])
@@ -138,7 +139,10 @@ def dataloader_digit(n_train = -1, n_test = -1):
     testdata.loadLabelData("digitdata/testlabels", testdata.number)
     return data, testdata
 
-def test_preceptorn(traindata, testdata, times, ratio):
+def test_preceptorn(traindata, testdata):
+    print("Initializing Perceptron")
+    times = int(input("max trian time for one data set: "))
+    ratio = float(input("learning ratio: "))
     totalnumber = traindata.number
     #first - try with ordered datas 
     for p in range(10,101,10):
@@ -214,10 +218,9 @@ def test_nueralnetwork_w(traindata, testdata, times, ratio, file):
 def test_naivebayes(traindata, testdata):
     #raw pixel feature
     feature_domians = [[i for i in np.arange(0,1.1,0.5)] for _ in range(traindata.width * traindata.height)]
-    
     for p in range(10, 101, 10):
         print("Training with %d"%int(p * traindata.number * 0.01))
-        nb = NaiveBayes(feature_domians, traindata.labeldomain)
+        nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
         images, labels = traindata.orderedout(p)
         nb.train(images, labels)
         x = nb.classify(testdata.images)
@@ -225,10 +228,48 @@ def test_naivebayes(traindata, testdata):
         print(a)
 
 
+def main():
+    print("Image Classification Program, coded by H M L for CS440 final project")
+    while True:
+        train = None
+        test  = None
+        while True:
+            print("Please pick a data set to be use: ")
+            print("1. Digit, 2. Face")
+            choice = input("(enter 1 or 2 or 3, or Q to exit): ")
+            if choice == '1':
+                print("Digit data picked, loading data")
+                train, test = dataloader_digit()
+                break
+            elif choice == '2':
+                print("Face data picked, loading data")
+                train, test = dataloader_face()
+                break
+            elif choice == 'Q':
+                print("Have a nice day, lol")
+                return 
+            else:
+                print("Wrong input XD, try again")
 
+        while True:
+            print("Please pick one algorithum from following:")
+            print("1. Naive Bayes Classifier")
+            print("2. Perceptorn")
+            print("3. Neural Network")
+            algorithum = input("(enter 1 or 2 or 3, or Q to exit): ")
+            if algorithum == '1':
+                test_naivebayes(train, test)
+            elif algorithum == '2':
+                test_preceptorn(train, test)
+            elif algorithum == '3':
+                test_nueralnetwork(train, test)
+            elif algorithum == 'Q':
+                return 
+
+            
 
 if __name__ == '__main__':
-    train , test = dataloader_digit()
+    main()
     #test_preceptorn(train, test, 10, 1)
     #test_nueralnetwork(train, test, 20, 0.5)
-    test_naivebayes(train, test)
+    #test_naivebayes(train, test)
