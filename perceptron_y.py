@@ -7,7 +7,7 @@ class Perceptron():
 		self.w0 = np.zeros(len(labels))
 		self.labels = labels
 
-	def train(self,feature_list, label_list , max_train_time):
+	def train(self,feature_list, label_list , max_train_time, ratio):
 		print("Start Perceptron trainning")
 		vectors = feature_list
 		for time in range(max_train_time):
@@ -22,10 +22,10 @@ class Perceptron():
 					f = Magic(feature, weight) 
 					if f < 0 and label == label_c:
 						for j in range(len(weight)):
-							weight[j] = weight[j] + feature[j]
+							weight[j] = weight[j] + ratio*feature[j]
 					elif f >=0 and label != label_c:
 						for j in range(len(weight)):
-							weight[j] = weight[j] - feature[j]
+							weight[j] = weight[j] - ratio*feature[j]
 
 	def classify(self, datalist):
 		result = []

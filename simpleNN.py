@@ -60,7 +60,7 @@ class NeuralNetwork():
 			print("Starting Training, Time : %d th" %(t+1))
 			for i in range(len(data_list)):
 				print("Training data number %d " %(i+1), end='\r')
-				self.stochastic_gradient_descent(np.reshape(data_list[i], (-1, 1))/2, label_list[i], ratio)
+				self.stochastic_gradient_descent(np.reshape(data_list[i], (-1, 1)), label_list[i], ratio)
 
 	def classify_one_time(self, data):
 		a = self.forward(data)
@@ -69,7 +69,7 @@ class NeuralNetwork():
 	def classify(self, data_list):
 		o = []
 		for data in data_list:
-			o.append(self.classify_one_time(np.reshape(data, (-1, 1))/2))
+			o.append(self.classify_one_time(np.reshape(data, (-1, 1))))
 		return o
 
 

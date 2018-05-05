@@ -1,4 +1,5 @@
 import os
+import random
 class ImageDataSet:
     """
     Object to hold data of images and label
@@ -7,9 +8,19 @@ class ImageDataSet:
     number -> number of image in object
 
     """
-    def __init__(self, height, width):
+    def __init__(self, height, width, labeldomain=None):
         self.height = height
         self.width = width
+        self.number = 0
+        if labeldomain != None:
+            self.labeldomain = labeldomain
+
+
+    def loadDataSet(self, imagepath, labelpath, n):
+        self.loadImageData(imagepath, n)
+        self.loadLabelData(labelpath, n)
+
+
     
     '''
     if n = -1, read all image in file and record number of image loaded 
@@ -59,13 +70,45 @@ class ImageDataSet:
             print("load fewer label than input")
 
 
+    '''
+    Shuffle all pairs of image and label 
+    '''
+    def shuffle(self):
+        temp = list(zip(self.images, self.labels))
+        random.shuffle(temp)
+        self.images , self.labels = zip(*temp)
+
+    '''
+    Return first n percent of data 
+    '''
+    def orderedout(self, precentage):
+        if precentage > 1:
+            precentage = precentage * 0.01
+        last = int(self.number*precentage -1)
+        return self.images[:last], self.labels[:last]
+
+
+    '''
+    return random n precent of data, without change the order of origin data
+    '''
+    def shuffleout(self, precentage):
+        temp = list(zip(self.images, self.labels))
+        random.shuffle(temp)
+        last = int(self.number*precentage -1)
+        temp = temp[:last]
+        images , labels = zip(*temp)
+
+        return images,labels
+
+
+
 def charToint(char):
     if char == ' ':
         return 0
     elif char == '+':
-        return 1
+        return 0.5
     elif char == '#':
-        return 2
+        return 1
 
 
 

@@ -3,6 +3,7 @@ from perceptron_y import Perceptron
 from util import *
 from simpleNN import NeuralNetwork
 import numpy as np 
+import matplotlib.pyplot as plt
 
 
 
@@ -25,21 +26,34 @@ def Magic(x,w):
     return np.dot(x,np.transpose(w))
 
 def ops():
-    data = ImageDataSet(70,60)
-    data.loadImageData("facedata/facedatatrain", -1)
-    print(data.number)
-    data.loadLabelData("facedata/facedatatrainlabels", data.number)
-    testdata = ImageDataSet(70,60)
-    testdata.loadImageData("facedata/facedatatest", -1)
-    testdata.loadLabelData("facedata/facedatatestlabels", testdata.number)
-    pc = Perceptron(70*60,['0', '1'])
-    pc.train(data.images, data.labels, 1)
+    
+    testdata = ImageDataSet(28,28)
+    testdata.loadImageData("digitdata/testimages", -1)
+    testdata.loadLabelData("digitdata/testlabels", testdata.number)
+    data = ImageDataSet(28,28)
+    data.loadImageData("digitdata/trainingimages", -1)
+    data.loadLabelData("digitdata/traininglabels", data.number)
+    for t in range(20,101,20):
+        images, labels = data.shuffleout(t)
+        al = []
+        il = []
+        pc = Perceptron(28*28,['0', '1','2','3','4','5','6','7','8','9'])
+        for i in range(100):
+            pc.train(images,labels, 1,0.8)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        plt.plot(il, al, label="size=%d"%(t*0.01*data.number) )
 
-    x = pc.classify(testdata.images)
+    leg = plt.legend( ncol=2, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlim([1,100])
+    plt.xlabel("trainning time")
+    plt.ylabel("accuracy")
 
-    a = Accuracy(x, testdata.labels)
-
-    print(a*100)
+    plt.show()
 
 
 def nntest():
@@ -79,7 +93,7 @@ def lay():
 
     for _ in range(50):
         print("Time:%d"%_)
-        nn.train(data.images, data.labels, 2, 0.5)    
+        nn.train(data.images, data.labels, 1, 0.3)    
         x = nn.classify(testdata.images)
         a = Accuracy(x, testdata.labels)
         print()
@@ -91,7 +105,7 @@ def layface():
     data = ImageDataSet(70,60)
     data.loadImageData("facedata/facedatatrain", -1)
     data.loadLabelData("facedata/facedatatrainlabels", data.number)
-    nn = NeuralNetwork( ( 70*60 ,10,2 ), ['0', '1'])
+    nn = NeuralNetwork( ( 70*60,  30,25,25,2 ), ['0', '1'])
     testdata = ImageDataSet(70,60)
     testdata.loadImageData("facedata/facedatatest", -1)
     testdata.loadLabelData("facedata/facedatatestlabels", testdata.number)
@@ -105,19 +119,98 @@ def layface():
         print("Accuracy is : %d" % (a*100))
     #print(testdata.labels)
     #print(x)
-    
-  
 
-    
+def dataloader_face():
+    data = ImageDataSet(70,60, labeldomain=['0', '1'])
+    data.loadImageData("facedata/facedatatrain", -1)
+    data.loadLabelData("facedata/facedatatrainlabels", data.number)
+    testdata = ImageDataSet(70,60)
+    testdata.loadImageData("facedata/facedatatest", -1)
+    testdata.loadLabelData("facedata/facedatatestlabels", testdata.number)    
 
-    
-    
-def nptest():
-    a = np.zeros((7,1))
-    a[3,0] = 1
-    print(np.argmax(a))
+def dataloader_digit():
+    data = ImageDataSet(28,28, labeldomain=['0', '1','2','3','4','5','6','7','8','9'])
+    data.loadImageData("digitdata/trainingimages", -1)
+    data.loadLabelData("digitdata/traininglabels", data.number)
+    testdata = ImageDataSet(28,28)
+    testdata.loadImageData("digitdata/testimages", -1)
+    testdata.loadLabelData("digitdata/testlabels", testdata.number)
+    return data, testdata
 
-    #print(np.random.random((8,4)))
+def test_preceptorn(traindata, testdata, times, ratio):
+    totalnumber = traindata.number
+    #first - try with ordered datas 
+    for p in range(10,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        plt.plot(il, al, label="size=%d"%(p*0.01*totalnumber) )
+
+    leg = plt.legend( ncol=1, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlim([1,times])
+    plt.xlabel("trainning time")
+    plt.ylabel("accuracy")
+    plt.show()
+
+def test_nueralnetwork(traindata, testdata, times, ratio):
+    totalnumber = traindata.number
+    #first - try with ordered datas 
+    for p in range(10,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        nn = NeuralNetwork((traindata.width*traindata.height, 15,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            print("Train %d time"%i)
+            nn.train(images, labels, 1, ratio)
+            x = nn.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        plt.plot(il, al, label="size=%d"%(p*0.01*totalnumber) )
+
+    leg = plt.legend( ncol=1, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlim([1,times])
+    plt.xlabel("trainning time")
+    plt.ylabel("accuracy")
+    plt.show()
+
+def test_nueralnetwork_w(traindata, testdata, times, ratio, file):
+    totalnumber = traindata.number
+    #first - try with ordered datas 
+    j = []
+    for p in range(10,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        nn = NeuralNetwork((traindata.width*traindata.height, 15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            print("Train %d time"%i)
+            nn.train(images, labels, 1, ratio)
+            x = nn.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        j.append((al, il))
+    import json
+    with open(file, 'w') as f:
+        json.dump(j, f)
+
+
 
 if __name__ == '__main__':
-    ops()
+    train , test = dataloader_digit()
+    #test_preceptorn(train, test, 10, 1)
+    test_nueralnetwork(train, test, 20, 0.5)
