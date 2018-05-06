@@ -92,6 +92,8 @@ class ImageDataSet:
     return random n precent of data, without change the order of origin data
     '''
     def shuffleout(self, precentage):
+        if precentage > 1:
+            precentage = precentage * 0.01
         temp = list(zip(self.images, self.labels))
         random.shuffle(temp)
         last = int(self.number*precentage -1)

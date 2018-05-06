@@ -55,7 +55,7 @@ class NaiveBayes(object):
             temp = np.log(label_count/self.total)
             for f in range(len(features)):
                 feature_index = self.feature_domains[f].index(features[f])
-                temp += np.log((self.learned[f][feature_index][i] + self.k)/ (label_count + self.k*len(self.learned[f])) )
+                temp += np.log((self.learned[f][feature_index][i] + self.k)/ (label_count + self.k*len(self.learned[f]))) 
             dist.append(temp)
         return dist
 

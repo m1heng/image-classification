@@ -2,13 +2,13 @@ import numpy as np
 
 class Perceptron():
 	def __init__(self, feature_number, labels):
+		print('Initilizing Perceptron')
 		self.name = "Perceptron"
 		self.weights = np.zeros((len(labels), feature_number))
 		self.w0 = np.zeros(len(labels))
 		self.labels = labels
 
 	def train(self,feature_list, label_list , max_train_time, ratio):
-		print("Start Perceptron trainning")
 		vectors = feature_list
 		for time in range(max_train_time):
 			print("Training time: %d" % time, end='\r')

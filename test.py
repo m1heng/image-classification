@@ -266,10 +266,251 @@ def main():
             elif algorithum == 'Q':
                 return 
 
-            
+def test_preceptorn_argmax_all():
+    print("Initializing Perceptron")
+    times = 30
+    ratio = 1
+    traindata, testdata = dataloader_digit()
+    #first - try with ordered datas
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="digitdata ordered" )
+
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.shuffleout(p)
+        al = []
+        il = []
+        pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="digitdata random" )
+
+    traindata, testdata = dataloader_face()
+    #first - try with ordered datas
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="facedata ordered" )
+
+    traindata, testdata = dataloader_face()
+    #first - try with ordered datas
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.shuffleout(p)
+        al = []
+        il = []
+        pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="facedata random" )
+
+    leg = plt.legend( ncol=1, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlabel("data size precentage")
+    plt.ylabel("accuracy")
+    plt.show()
+
+
+def test_naivebayes_argmax_all():
+
+    traindata, testdata = dataloader_digit()
+    feature_domians = [[i for i in np.arange(0,1.1,0.5)] for _ in range(traindata.width * traindata.height)]
+    fal = []
+    pal = []
+    for p in range(10, 101, 10):
+        print("Training with %d"%int(p * traindata.number * 0.01))
+        nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+        images, labels = traindata.orderedout(p)
+        nb.train(images, labels)
+        x = nb.classify(testdata.images)
+        a = Accuracy(x, testdata.labels)
+        fal.append(a*100)
+        pal.append(p)
+        print(a)
+    plt.plot( pal, fal, label="digitdata order")
+    fal = []
+    pal = []
+    for p in range(10, 101, 10):
+        print("Training with %d"%int(p * traindata.number * 0.01))
+        nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+        images, labels = traindata.shuffleout(p)
+        nb.train(images, labels)
+        x = nb.classify(testdata.images)
+        a = Accuracy(x, testdata.labels)
+        fal.append(a*100)
+        pal.append(p)
+        print(a)
+    plt.plot( pal, fal, label="digitdata random")
+
+    traindata, testdata = dataloader_face()
+    feature_domians = [[0, 1] for _ in range(traindata.width * traindata.height)]
+    fal = []
+    pal = []
+    for p in range(10, 101, 10):
+        print("Training with %d"%int(p * traindata.number * 0.01))
+        nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+        images, labels = traindata.orderedout(p)
+        nb.train(images, labels)
+        x = nb.classify(testdata.images)
+        a = Accuracy(x, testdata.labels)
+        fal.append(a*100)
+        pal.append(p)
+        print(a)
+    plt.plot( pal, fal, label="facedata order")
+    fal = []
+    pal = []
+    for p in range(10, 101, 10):
+        print("Training with %d"%int(p * traindata.number * 0.01))
+        nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+        images, labels = traindata.shuffleout(p)
+        nb.train(images, labels)
+        x = nb.classify(testdata.images)
+        a = Accuracy(x, testdata.labels)
+        fal.append(a*100)
+        pal.append(p)
+        print(a)
+    plt.plot( pal, fal, label="facedata random")
+
+    leg = plt.legend( ncol=1, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlabel("data size precentage")
+    plt.ylabel("accuracy")
+    plt.show()
+
+def test_nn_argmax_all():
+    print("Initializing nn")
+    times = 300
+    ratio = 0.6
+    traindata, testdata = dataloader_digit()
+    #first - try with ordered datas
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="digitdata ordered" )
+
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.shuffleout(p)
+        al = []
+        il = []
+        pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="digitdata random" )
+
+    traindata, testdata = dataloader_face()
+    #first - try with ordered datas
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="facedata ordered" )
+    #first - try with ordered datas
+    fal = [] 
+    pal = []
+    for p in range(10,101,10):
+        images, labels = traindata.shuffleout(p)
+        al = []
+        il = []
+        pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        fal.append(max(al))
+        pal.append(p)
+    plt.plot( pal, fal, label="facedata random" )
+
+    leg = plt.legend( ncol=1, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlabel("data size precentage")
+    plt.ylabel("accuracy")
+    plt.show()
+
 
 if __name__ == '__main__':
-    main()
+    test_nn_argmax_all()
+    #main()
     #test_preceptorn(train, test, 10, 1)
     #test_nueralnetwork(train, test, 20, 0.5)
     #test_naivebayes(train, test)
