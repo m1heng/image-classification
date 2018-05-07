@@ -508,8 +508,299 @@ def test_nn_argmax_all():
     plt.show()
 
 
+def timeana():
+    import time
+    limit = 0.7
+    ratio = 1
+    times = 200
+    print("digit")
+    traindata, testdata = dataloader_digit()
+    fal = [] 
+    pal = []
+
+    for p in range(20,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        start = time.time()
+        pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+            if a > limit:
+                end = time.time()
+                break
+        fal.append(end- start)
+        pal.append(p)
+    plt.plot( pal, fal, label="digitdata Perceptron" )
+
+    feature_domians = [[i for i in np.arange(0,1.1,0.5)] for _ in range(traindata.width * traindata.height)]
+    fal = []
+    pal = []
+    for p in range(20, 101, 10):
+        start = time.time()
+        nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+        images, labels = traindata.orderedout(p)
+        nb.train(images, labels)
+        x = nb.classify(testdata.images)
+        a = Accuracy(x, testdata.labels)
+        end = time.time()
+        fal.append(end - start)
+        pal.append(p)
+        print(a)
+    plt.plot( pal, fal, label="digitdata NaiveBayes")
+
+    fal = [] 
+    pal = []
+    for p in range(20,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        start = time.time()
+        pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+            if a > limit:
+                end = time.time()
+                break
+        fal.append(end - start)
+        pal.append(p)
+    plt.plot( pal, fal, label="digitdata NeuralNetwork")
+
+
+    print("face")
+    traindata, testdata = dataloader_face()
+    fal = [] 
+    pal = []
+
+    for p in range(20,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        start = time.time()
+        pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+            if a > limit:
+                end = time.time()
+                break
+        fal.append(end- start)
+        pal.append(p)
+    plt.plot( pal, fal, label="facedata Perceptron" )
+
+    feature_domians = [[i for i in np.arange(0,1.1,0.5)] for _ in range(traindata.width * traindata.height)]
+    fal = []
+    pal = []
+    for p in range(20, 101, 10):
+        start = time.time()
+        nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+        images, labels = traindata.orderedout(p)
+        nb.train(images, labels)
+        x = nb.classify(testdata.images)
+        a = Accuracy(x, testdata.labels)
+        end = time.time()
+        fal.append(end - start)
+        pal.append(p)
+        print(a)
+    plt.plot( pal, fal, label="facedata NaiveBayes")
+
+    fal = [] 
+    pal = []
+    for p in range(20,101,10):
+        images, labels = traindata.orderedout(p)
+        al = []
+        il = []
+        start = time.time()
+        pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+        for i in range(times):
+            pc.train(images, labels, 1, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+            if a > limit:
+                end = time.time()
+                break
+        fal.append(end - start)
+        pal.append(p)
+    plt.plot( pal, fal, label="facedata NeuralNetwork")
+
+
+    leg = plt.legend( ncol=1, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlabel("data size precentage")
+    plt.ylabel("time(in second)")
+    plt.show()
+
+
+def stdmean():
+    limit = 0.7
+    ratio = 0.8
+    times = 5
+    print("digit")
+    traindata, testdata = dataloader_digit()
+    sal = []
+    mal = [] 
+    pal = []
+
+    for p in range(10,101,10):
+        al = []
+        il = []
+        for i in range(times):
+            images, labels = traindata.shuffleout(p)
+            pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+            pc.train(images, labels, 3, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        sal.append(np.std(al))
+        mal.append(np.mean(al))
+        pal.append(p)
+    plt.plot( pal, sal, label="digitdata Perceptron std" )
+    plt.plot( pal, mal, label="digitdata Perceptron mean" )
+
+    feature_domians = [[i for i in np.arange(0,1.1,0.5)] for _ in range(traindata.width * traindata.height)]
+    sal = []
+    mal = [] 
+    pal = []
+    for p in range(10, 101, 10):
+        al = []
+        for i in range(3):
+            images, labels = traindata.shuffleout(p)
+            nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+            nb.train(images, labels)
+            x = nb.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+        sal.append(np.std(al))
+        mal.append(np.mean(al))
+        pal.append(p)
+        print(a)
+    plt.plot( pal, sal, label="digitdata NaiveBayes std" )
+    plt.plot( pal, mal, label="digitdata NaiveBayes mean" )
+
+    sal = []
+    mal = [] 
+    pal = []
+    for p in range(10,101,10):
+        
+        al = []
+        il = []
+        for i in range(times):
+            images, labels = traindata.shuffleout(p)
+            pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+            pc.train(images, labels, 50, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+        sal.append(np.std(al))
+        mal.append(np.mean(al))
+        pal.append(p)
+        print(a)
+    plt.plot( pal, sal, label="digitdata NeuralNetwork std" )
+    plt.plot( pal, mal, label="digitdata NeuralNetwork mean" )
+
+
+    print("face")
+    traindata, testdata = dataloader_face()
+    sal = []
+    mal = [] 
+    pal = []
+
+    for p in range(10,101,10):
+        
+        al = []
+        il = []
+        for i in range(times):
+            images, labels = traindata.shuffleout(p)
+            pc = Perceptron(traindata.width*traindata.height, traindata.labeldomain)
+            pc.train(images, labels, 3, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+            print(a*100)
+        sal.append(np.std(al))
+        mal.append(np.mean(al))
+        pal.append(p)
+    plt.plot( pal, sal, label="facedata Perceptron std" )
+    plt.plot( pal, mal, label="facedata Perceptron mean" )
+
+    feature_domians = [[i for i in np.arange(0,1.1,0.5)] for _ in range(traindata.width * traindata.height)]
+    sal = []
+    mal = [] 
+    pal = []
+    for p in range(10, 101, 10):
+        al = []
+        
+        for i in range(3):
+            images, labels = traindata.shuffleout(p)
+            nb = NaiveBayes(feature_domians, traindata.labeldomain , 1)
+            nb.train(images, labels)
+            x = nb.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+        sal.append(np.std(al))
+        mal.append(np.mean(al))
+        pal.append(p)
+        print(a)
+    plt.plot( pal, sal, label="facedata NaiveBayes std" )
+    plt.plot( pal, mal, label="facedata NaiveBayes mean" )
+
+    sal = []
+    mal = [] 
+    pal = []
+    for p in range(10,101,10):
+        
+        al = []
+        il = []
+        
+        for i in range(times):
+            images, labels = traindata.shuffleout(p)
+            pc = NeuralNetwork((traindata.width*traindata.height,15,15, len(traindata.labeldomain)), traindata.labeldomain)
+            pc.train(images, labels, 50, ratio)
+            x = pc.classify(testdata.images)
+            a = Accuracy(x, testdata.labels)
+            al.append(a*100)
+            il.append(i+1)
+        sal.append(np.std(al))
+        mal.append(np.mean(al))
+        pal.append(p)
+        print(a)
+    plt.plot( pal, sal, label="facedata NeuralNetwork std" )
+    plt.plot( pal, mal, label="facedata NeuralNetwork mean" )
+
+
+    leg = plt.legend( ncol=1, shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+    plt.xlabel("data size precentage")
+    plt.ylabel("time(in second)")
+    plt.show()
+
+
+
+
 if __name__ == '__main__':
-    test_nn_argmax_all()
+    stdmean()
+    #test_nn_argmax_all()
     #main()
     #test_preceptorn(train, test, 10, 1)
     #test_nueralnetwork(train, test, 20, 0.5)
