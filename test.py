@@ -159,7 +159,6 @@ def test_preceptorn(traindata, testdata):
 
     leg = plt.legend( ncol=1, shadow=True, fancybox=True)
     leg.get_frame().set_alpha(0.5)
-    plt.xlim([1,times])
     plt.xlabel("trainning time")
     plt.ylabel("accuracy")
     plt.show()
@@ -259,10 +258,13 @@ def main():
             algorithum = input("(enter 1 or 2 or 3, or Q to exit): ")
             if algorithum == '1':
                 test_naivebayes(train, test)
+                break
             elif algorithum == '2':
                 test_preceptorn(train, test)
+                break
             elif algorithum == '3':
                 test_nueralnetwork(train, test)
+                break
             elif algorithum == 'Q':
                 return 
 
@@ -799,9 +801,9 @@ def stdmean():
 
 
 if __name__ == '__main__':
-    stdmean()
+    #stdmean()
     #test_nn_argmax_all()
-    #main()
+    main()
     #test_preceptorn(train, test, 10, 1)
     #test_nueralnetwork(train, test, 20, 0.5)
     #test_naivebayes(train, test)
